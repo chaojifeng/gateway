@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<body>
+    <P><input type="user" name="user" class="user"> 
+    <input type="submit" name="" value="登陆" onclick="sendsLogin()"></p>
+
+
+     <P style=""><input type="message" name="message" class="message">
+    <input type="submit" name="" onclick="sends()"></P>
+    <div class = "message">
+        <!-- <div class="new">feng:45464546645655645</div> -->
+    </div>
+</body>
+<script src="http://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+<script type="text/javascript">
+ 
+    var webSocket = null;
+ 
+    
+    initSocket()
+    function initSocket() {
+        if (!"WebSocket" in window) {
+            console.log("您的浏览器不支持 WebSocket!");
+            return;
+        }
+        webSocket = new WebSocket("ws://"+document.domain+":8283");
+        webSocket.onopen = handleSend;
+        webSocket.onmessage = handleMessage;
+        webSocket.onclose = handleClose;
+        webSocket.onerror = handleError;
+    }
+ 
+    // 向服务器端发送数据
+    function handleSend() {
+        // Web Socket 已连接上，使用 send() 方法发送数据
+        // testing();
+    }
+ 
+    // 处理服务器端发送过来的数据
+    function handleMessage(evt) {
+        var received_msg = evt.data;
+        console.log(received_msg);
+        login(received_msg);
+    }
+ 
+    // 处理连接关闭事件
+    function handleClose() {
+        console.log("连接已关闭...");
+    }
+ 
+    // 处理WebSocket错误
+    function handleError() {
+        console.log("WebSocketError!");
+    }
+    
+    function testing() {
+        //每隔3秒钟向服务器发送数据，此处仅用于测试
+        var items = ['张三','李四','小二黑','阿杜','单工','大理寺','花荣','刘备','诸葛亮'];
+        setInterval(function () {
+            var item = items[Math.floor(Math.random()*items.length)];
+            webSocket.send(item);
+        },3000);
+    }
+
+    function login(received_msg){
+         $(".message").append("<div class='new'>"+received_msg+"</div>");
+    }
+    
+
+     function sendsLogin(){
+        $.ajax({
+          type:"post",
+          url:"http://worker1.com/index.php/gatewayapp/index/login",
+          data:['']
+          function(data){
+                console.log(data)      
+            }
+      });
+    }
+
+    function sends(){
+        var user = $(".user").val();
+        var message = $(".message").val();
+        var data = '{"type":"message", "user": "'+user+'" ,"message":"'+message+'"}'; 
+        webSocket.send(data);
+    }
+</script>
+</body>
+</html>
